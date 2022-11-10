@@ -3,49 +3,21 @@
 
 {% block main %}
 
-<script>
-document.addEventListener('DOMContentLoaded', ()=> {
-
-    document.querySelector('form').onsubmit = ()=> {
-        event.preventDefault();
-        form = document.querySelector('form');
-        console.log('start of on submit');
-        console.log(`fpomr is ${form}`);
-        console.log(`event is ${event}`);
-        console.log(`this is ${this}`);
-
-        const formData = new FormData(form);
-        const comment = document.querySelector('#id_comment').value;
-        console.log(`comment is ${comment}`);
-        console.log(`comment is FormData ${formData}`);
-
-        fetch(form.action, {
-            method: "POST",
-            body: formData
-        })
-        .then(response => {
-            console.log(`resonse: ${response}`);
-            return response.json()})
-        .then(data => {
-            addComment(data);
-            console.log(data);
-        })
-        .catch(error => {
-            console.log("*** api/comment error **", error);
-        })
-        console.log('end of on submit')
-        return false;
-    }
-})
+a
 
 function addComment(data) {
     const section = document.createElement('section');
-    section.class = "comments";
+    section.classList.add("comments");
 
     const p1 = document.createElement('p');
     p1.innerHTML = data["comment"];
 
+    const p2 = document.createElement('p');
+    p2.style.fontSize = "small";
+    p2.innerHTML = `Posted by <strong>${data["commentor"]}</strong> at ${data["created_at"]}`
+
     section.append(p1);
+    section.append(p2);
     document.querySelector('article').prepend(section);
 }
 
@@ -69,12 +41,12 @@ function cancelButton() {
 </form>
 
 <article class="comments">
-    {% for c in listing.comments.all reversed%}
+    {% for c in listing.comments.all reversed %}
         <section class="comments">
             <p>{{ c.comment }}</p>
             <p style="font-size:small">Posted by <strong>{{c.commentor}}</strong> at {{c.created_at}}</p>
         </section>
     {% endfor %}
-    </article>
+</article>
 
 {% endblock %}

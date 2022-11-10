@@ -7,7 +7,18 @@
 <h2>
     {% if user.is_authenticated %}
         <img class="toggle_watchlist" data-listing_id="{{listing.id}}" src="{% static 'auctions/hollow-star.png' %}">
-    {% endif %}
+        <!-- 
+            <span class="toggler material-symbols-outlined">
+            star
+            </span>
+            <span class="filled toggler material-symbols-outlined">
+                star
+                </span>
+                <span class="invis toggler material-symbols-outlined">
+                    star
+                    </span>
+                -->
+            {% endif %}
     {{ listing.title }}
     | <small>High bid: ${{ listing.high_bid_amount }}</small>
     {% if not listing.active %}

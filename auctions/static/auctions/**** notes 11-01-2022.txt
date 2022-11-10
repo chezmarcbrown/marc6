@@ -1,0 +1,172 @@
+1) Move categories into table
+
+class Category(models.Model):
+    code = models.CharField(max_length=2, primary_key=True)
+    name = models.CharField(max_length=50)
+    image = models.ImageField(upload_to='images/categories', blank=True)
+
+    class Meta:
+        verbose_name_plural = 'Categories'
+
+    def __str__(self):
+        return self.name
+
+
+2) Migrate
+
+3) Update values of this new column
+update auctions_listing set cat_id = categories;
+
+4)delete out the categories, change name of cats to categories
+
+5) All should be OK auto_now
+
+------------------
+ 
+1) categories.html to select a category, use table:
+
+<h2>Choose a categories to search</h2>
+    <form action="{% url 'categories' %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+
+2) forms.py:
+
+class CategoryForm(forms.Form):
+    category = forms.ModelChoiceField(queryset=Category.objects.all())
+
+
+3) views.py:
+
+from .forms import CategoryForm
+def categories(request):
+    if request.method == "POST":
+        c = request.POST["category"]
+        return render(request, "auctions/index.html", {
+            "listings": Listing.objects.filter(categories=c, closed=False)
+        })
+    else:
+        return render(request, "auctions/categories.html", {'form': CategoryForm()})
+7\
+------------------
+
+index() - don't need to pass watching. access it as request.user.watch.
+
+------------------
+
+class bid => class Bid
+
+------------------
+
+Comments:
+    created_at = models.DateTimeField(auto_now=True)
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
+
+views.listing:
+a) Comments => lower case
+b) get comments via entry.comments.all
+c) don't pass; in listing.html, acccess via related_name
+                    {% for comment in entry.comments.all %}
+d) also in listing.html:
+   @{{comment.created_at}} 
+
+settings.py:
+TIME_ZONE = 'US/Alaska'
+
+
+----------------
+views.categories
+
+1) redirect to acdtive_listings is misleading; it's just listings in categories
+
+2) rename to category_listings
+
+3) try to render (but refresh is wrong!):
+        c = request.POST["Category"]
+        return render(request, "auctions/index.html", {
+            "listings": Listing.objects.filter(categories=c, closed=False)
+        })
+
+----------------
+
+javascript
+
+1) add to urls: 
+    path("api/add_comment/<int:listing_id>", views.api_comment, name="api-add-comment"),
+
+
+2) views: api_add_comment:
+        Comment.objects.create(commenter=request.user, comment=request.POST["comment_text"],
+                               listing=Listing.objects.get(pk=listing_id))
+
+from django.http import JsonResponse
+def api_add_comment(request, listing_id):
+    listing = Listing.objects.get(id=listing_id)
+    comment=request.POST["comment_text"]
+    if request.method == "POST":
+        c = Comment.objects.create(commenter=request.user, comment=comment, listing=listing)
+        return JsonResponse({'comment': c})
+    return JsonResponse({'error':'something went wrong'})
+
+
+
+4) Now for the JS:
+
+a) In form def, change action and give it ID:
+<form id="comment-form" action="{% url 'api-add-comment' listing_id=listing.pk %}" style="display: inline" method="POST">
+
+b) button => input
+        <input type="submit" style="display: inline">Post a comment!</input>
+
+c) add basic js:
+
+<script>
+    document.addEventListener('DOMContentLoaded', ()=> {
+    
+        document.querySelector('#comment-form').onsubmit = ()=> {
+            form = document.querySelector('#comment-form');
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                return response.json()})
+            .then(data => {
+                console.log(data)
+                //addComment(data);
+            })
+            .catch(error => {
+                console.log("*** api/comment error **", error);
+            })
+    
+            //document.querySelector('#comment_text').value = ''
+            return false;
+        }
+    })
+
+    </script>
+
+4) Will need to fix in views:
+
+        return JsonResponse({
+                'comment': c.comment,
+                'commenter': f'{c.commentor}',
+                'created_at': c.created_at
+            })
+
+5) Implement addComment
+
+listing.html: give name to <section id="comments-section">
+
+function addComment(data) {
+    const p = document.createElement('p');
+    p.style.display = "inline";
+    p.innerHTML = `@${data["created_at"]} ${data["commenter"]} says: ${ data["comment"]}`
+    const br = document.createElement('br');
+    document.querySelector('#comments-section').append(p);
+    document.querySelector('#comments-section').append(br);
+}
+
+CLear out the textfield after submit:
+            document.querySelector('#comment_text').value = ''

@@ -82,6 +82,9 @@ img.toggle_watchlist {
 img.toggle_watchlist:hover {
   cursor: grab;
   border: 1px solid;
+  filter: brightness(1.4);
+  color: red;
+
 }
 
 .watcher-badge {
@@ -92,3 +95,27 @@ img.toggle_watchlist:hover {
   border-radius: 6px;
 }
  
+span.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 500,
+  'GRAD' 200,
+  'opsz' 48;
+  font-size: inherit;
+}
+
+.toggler:hover {
+  color: green;
+
+  font-variation-settings:'wght' 700, 'FILL' 0;
+}
+
+.invis.material-symbols-outlined {
+  color: white;
+}
+
+
+.filled.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 1;
+}
