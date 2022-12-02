@@ -3,24 +3,6 @@
 
 {% block main %}
 
-a
-
-function addComment(data) {
-    const section = document.createElement('section');
-    section.classList.add("comments");
-
-    const p1 = document.createElement('p');
-    p1.innerHTML = data["comment"];
-
-    const p2 = document.createElement('p');
-    p2.style.fontSize = "small";
-    p2.innerHTML = `Posted by <strong>${data["commentor"]}</strong> at ${data["created_at"]}`
-
-    section.append(p1);
-    section.append(p2);
-    document.querySelector('article').prepend(section);
-}
-
 function cancelButton() {
     window.location = "{% url 'index' %}";
 }
